@@ -10,11 +10,7 @@ class App extends React.Component {
 
 		this.state = {
 			items: [],
-			currentItem: {
-				text: '',
-				key: ''
-			},
-			isDone: true
+			inputText: ""
 		}
 
 		this.handleInput = this.handleInput.bind(this);
@@ -23,57 +19,62 @@ class App extends React.Component {
 		this.handleClick = this.handleClick.bind(this);
 	}
 
-	handleClick() {
-		this.setState(state => ({
-			isDone: !state.isDone
-		}));
+	handleClick(item) {
+		const newItems = this.state.items.map(el => {
+			if (item.key === el.key) {
+				el.isDone = !el.isDone
+			}
+			return el;
+		});
+		this.setState({
+			items: [...newItems]
+		});
 	}
 
 	handleInput(e) {
 		this.setState({
-			currentItem: {
-				text: e.target.value,
-				key: Date.now()
-			}
-		})
+			inputText: e.target.value
+		});
 	}
 
 	addItem(e) {
 		e.preventDefault();
-		const newItem = this.state.currentItem;
-		console.log(newItem);
-		if (newItem.text !== "") {
-			const newItems = [...this.state.items, newItem];
+		if (this.state.inputText !== "") {
+			const newItems = [
+				...this.state.items,
+				{
+					text: this.state.inputText,
+					key: Date.now(),
+					isDone: false
+				}
+			];
 			this.setState({
 				items: newItems,
-				currentItem: {
-					text: '',
-					key: '',
-				}
-			})
+				inputText: ""
+			});
 		}
 	}
 
-	deleteItem(key) {
+	deleteItem(e, key) {
+		e.stopPropagation();
 		const filteredItems = this.state.items.filter(item => item.key !== key);
 		this.setState({
 			items: filteredItems
-		})
+		});
 	}
 
 	render() {
-		console.log(this.state.isDone);
 		return (
 			<div className="App">
 				<header>
 					<form id="to-do-form" onSubmit={this.addItem}>
 						<input type="text" placeholder="Enter Text"
-							value={this.state.currentItem.text}
+							value={this.state.inputText}
 							onChange={this.handleInput} />
 						<button type="submit">Add</button>
 					</form>
 				</header>
-				<ListItems items={this.state.items} deleteItem={this.deleteItem} isDone={this.state.isDone} handleClick={this.handleClick} />
+				<ListItems items={this.state.items} deleteItem={this.deleteItem} handleClick={this.handleClick} />
 			</div>
 		);
 	}
